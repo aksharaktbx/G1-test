@@ -31,6 +31,7 @@ function App() {
     <Router>
       <CustomCursor />
       {/* <Dashboard/> */}
+      
       <Routes>
         <Route path="/" element={<Home />}/>
         <Route path="/home/help" element={<Help/>} />
@@ -40,7 +41,7 @@ function App() {
         <Route path='/home/Recources/DrivingTips' element={<DrivingTips/>}/>
         <Route path='/auth' element={<LoginPage/>}/>
         <Route path='/Home/Premium/navigation' element={<Premium/>}/>
-        <Route path='/home/g1-free-test' element={<FreeTest/>}/>
+        <Route path='/home/g1-free-test/:id' element={<FreeTest/>}/>
         <Route path='/home/gi-premium-test-series' element={<Premiumtest/>}/>
         <Route path='/home/who-can-g1-driver-drive-with/' element={<Testpage/>}/>
         <Route path='/home/text-series' element={<ExamPage/>}/>

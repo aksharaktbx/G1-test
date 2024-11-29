@@ -1,11 +1,81 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, Navigate, useNavigate, useParams } from 'react-router-dom';
 import Navhead from '../Navhead';
 import Footer from '../Footer';
+import { useState,useEffect } from 'react';
+import axios from 'axios';
+import { v4 as uuidv4 } from 'uuid'; // Install 'uuid' library for unique ID generation
+
 
 function FreeTest() {
+  const [loading, setLoading] = useState(true); // Loading state
+  const [error, setError] = useState(null); // Error state
+  const [testdata,settestdata]=useState([])
+  const [uniqueCode, setUniqueCode] = useState('');
+  const navigate=useNavigate()
+  useEffect(() => {
+    // Check if a code already exists in localStorage
+    let storedCode = localStorage.getItem('uniqueCode');
+    
+    if (!storedCode) {
+      // Generate a new code if not found
+      storedCode = uuidv4(); // Generate a unique UUID
+      localStorage.setItem('uniqueCode', storedCode); // Save it in localStorage
+    }
+
+    setUniqueCode(storedCode); // Update the state
+  }, []);
+
+  const {id}=useParams()
+
+ useEffect(() => {
+    const fetchTestData = async () => {
+      try {
+        const response = await axios.get(`http://localhost:5000/gettest/${id}`);
+        console.log(response.data.test); // Debugging log
+        settestdata(response.data.test)
+      } catch (err) {
+        setError('Failed to fetch data'); // Set error message
+        console.error(err); // Log error for debugging
+      } finally {
+        setLoading(false); // Stop loading
+      }
+    };
+
+    fetchTestData();
+  }, [id]); // Add testId as a dependency
+
+
+
+  const startTest = async () => {
+    console.log(id, uniqueCode);
+    try {
+      const response = await axios.post('http://localhost:5000/starttest', {
+        testId: id,
+        userId: uniqueCode,
+      });
+  
+      console.log(response.data);
+  
+      // Navigate only if the status is 200 or 201
+      if (response.status === 200 || response.status === 201) {
+        navigate(`/home/text-series`, { state: { testId: id, userId: uniqueCode } });
+      } else {
+        setError('Unexpected response. Please try again.');
+      }
+    } catch (err) {
+      console.error('Failed to start test:', err);
+      setError('Failed to start the test. Please try again.');
+      setLoading(false);
+    }
+  };
+
+ 
+
   return (
     <>
+            <span className="text-lg font-mono">{uniqueCode}</span>
+
       <Navhead />
       <div className="flex justify-center py-8 px-4">
         <div className="bg-white rounded-lg p-10 flex flex-col md:flex-row max-w-6xl w-full">
@@ -17,10 +87,10 @@ function FreeTest() {
               <li>Triple-checked for accuracy</li>
               <li>Updated for December 2024</li>
             </ul>
-            <Link to="/home/text-series">    <button className="mt-8 bg-indigo-600 hover:bg-indigo-700 text-white py-3 px-6 rounded-full flex items-center">
+               <button className="mt-8 bg-indigo-600 hover:bg-indigo-700 text-white py-3 px-6 rounded-full flex items-center" onClick={startTest}>
           <i className="fas fa-car mr-2"></i>
               Start free practice test
-            </button>   </Link>
+            </button>  
           </div>
           <div className="relative flex-1">
             <img
@@ -73,16 +143,16 @@ function FreeTest() {
             <div className="mb-4">
               <div className="flex items-center mb-2">
                 <div className="w-1/2 text-center bg-blue-100 p-2 rounded-lg">
-                  <p className="text-xl font-bold">40</p>
+                  <p className="text-xl font-bold">{testdata.totalQuestions}</p>
                   <p className="text-sm text-gray-600">questions</p>
                 </div>
                 <div className="w-1/2 text-center bg-blue-100 p-2 rounded-lg ml-2">
-                  <p className="text-xl font-bold">32</p>
+                  <p className="text-xl font-bold">{testdata.passingMarks}</p>
                   <p className="text-sm text-gray-600">correct answers to pass</p>
                 </div>
               </div>
               <div className="text-center bg-blue-100 p-2 rounded-lg">
-                <p className="text-xl font-bold">80%</p>
+                <p className="text-xl font-bold">{testdata.passingScore}%</p>
                 <p className="text-sm text-gray-600">passing score</p>
               </div>
             </div>
