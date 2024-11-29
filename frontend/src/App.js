@@ -23,15 +23,16 @@ import Premiumtest from './Component/PremumTest/Premiumtest';
 import Testpage from './Component/NormalTest/Testpage';
 import ExamPage from './Component/ExamPage/ExamPage';
 import Dashboard from './Component/Admin/Dashboard';
+import Result from './Component/Result/Result';
 
 
 function App() {
   return (
     <Router>
       <CustomCursor />
-      <Dashboard/>
+      {/* <Dashboard/> */}
       <Routes>
-        <Route path="/home" element={<Home />}/>
+        <Route path="/" element={<Home />}/>
         <Route path="/home/help" element={<Help/>} />
         <Route path='/home/help/premium' element={<AccordianSection/>}/>
         <Route path='/home/FQ&A' element={<Faq/>}/>
@@ -43,6 +44,7 @@ function App() {
         <Route path='/home/gi-premium-test-series' element={<Premiumtest/>}/>
         <Route path='/home/who-can-g1-driver-drive-with/' element={<Testpage/>}/>
         <Route path='/home/text-series' element={<ExamPage/>}/>
+        <Route path="/result" element={<Result/>}/>
       </Routes>
     </Router>
   );

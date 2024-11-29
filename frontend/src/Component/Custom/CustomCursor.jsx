@@ -1,10 +1,12 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import paper from 'paper';
 import SimplexNoise from 'simplex-noise'; // Ensure this is installed
 
 const CustomCursor = () => {
     const innerCursorRef = useRef(null);
     const canvasRef = useRef(null);
+    
+    const [cursorSize, setCursorSize] = useState(5); // Default size for cursor
     
     useEffect(() => {
         let clientX = -100;
@@ -16,6 +18,19 @@ const CustomCursor = () => {
 
         const innerCursor = innerCursorRef.current;
 
+        const updateCursorSize = () => {
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+
+            // Dynamically adjust the cursor size relative to window size
+            const newSize = Math.min(width, height) * 0.02; // Adjust the factor (0.02) for responsiveness
+            setCursorSize(newSize);
+        };
+
+        // Handle window resize to update cursor size
+        window.addEventListener('resize', updateCursorSize);
+        updateCursorSize(); // Initial size adjustment
+
         const initCursor = () => {
             document.addEventListener('mousemove', e => {
                 clientX = e.clientX;
@@ -23,7 +38,9 @@ const CustomCursor = () => {
             });
 
             const render = () => {
-                innerCursor.style.transform = `translate(${clientX}px, ${clientY}px)`;
+                innerCursor.style.transform = `translate(${clientX - cursorSize / 2}px, ${clientY - cursorSize / 2}px)`;
+                innerCursor.style.width = `${cursorSize}px`;
+                innerCursor.style.height = `${cursorSize}px`;
                 requestAnimationFrame(render);
             };
             requestAnimationFrame(render);
@@ -33,7 +50,7 @@ const CustomCursor = () => {
             const canvas = canvasRef.current;
             paper.setup(canvas);
             const shapeBounds = { width: 75, height: 75 };
-            const strokeColor = 'rgba(255, 0, 0, 0.5)';
+            const strokeColor = 'rgb(79, 70, 229)';
             const strokeWidth = 1;
             const segments = 8;
             const radius = 15;
@@ -79,9 +96,10 @@ const CustomCursor = () => {
         initHovers();
 
         return () => {
+            window.removeEventListener('resize', updateCursorSize);
             document.removeEventListener('mousemove', initCursor);
         };
-    }, []);
+    }, [cursorSize]);
 
     return (
         <section className="relative">
@@ -106,13 +124,12 @@ const CustomCursor = () => {
                     left: 0;
                     top: 0;
                     pointer-events: none;
+                    transition: transform 0.1s ease-out; /* Smooth transform */
                 }
                 .cursor--small {
-                    width: 5px;
-                    height: 5px;
                     border-radius: 50%;
-                    z-index: 11000;
                     background: #4f46e5;
+                    z-index: 11000;
                 }
                 .cursor--canvas {
                     width: 100vw;

@@ -11,7 +11,7 @@ import Testimonials from '../Component/Testomonial';
 function Home() {
     return (
         <>
-        <h1>hello</h1>
+   
             <Navbar />
             <Tabbar />
             <div className="">
