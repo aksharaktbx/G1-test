@@ -30,9 +30,9 @@ function App() {
   return (
     <Router>
       <CustomCursor />
-      {/* <Dashboard/> */}
+      <Dashboard/>
       
-      <Routes>
+      {/* <Routes>
         <Route path="/" element={<Home />}/>
         <Route path="/home/help" element={<Help/>} />
         <Route path='/home/help/premium' element={<AccordianSection/>}/>
@@ -46,7 +46,7 @@ function App() {
         <Route path='/home/who-can-g1-driver-drive-with/' element={<Testpage/>}/>
         <Route path='/home/text-series' element={<ExamPage/>}/>
         <Route path="/result" element={<Result/>}/>
-      </Routes>
+      </Routes> */}
     </Router>
   );
 }
