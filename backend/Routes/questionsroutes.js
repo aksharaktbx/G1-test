@@ -1,5 +1,5 @@
 const express = require('express');
-const { addQuestion, getQuestions  ,deleteQuestion ,editQuestion,getQuestionsByTest } = require('../controller/Adquestionscontroller');
+const { addQuestion, getQuestions  ,deleteQuestion ,editQuestion,getQuestionsByTest,getQuestionById } = require('../controller/Adquestionscontroller');
 // const {submitAnswers}=require('../controller/submitanswer')
 const testcontroller=require('../controller/createtestname')
 const createtestmodulecontroller=require('../controller/createtestmodule')
@@ -12,9 +12,11 @@ router.post('/add',upload.single('image'), addQuestion);
 
 // Get all questions for a specific test category
 router.get('/getquestions', getQuestions);
+router.get('/getquestions/:id', getQuestionById);
+
 router.get('/testquestions/:testName/:testLevel/:testTitle', getQuestionsByTest);
 router.delete('/delete/:id', deleteQuestion); // Endpoint to delete a question by ID
-router.put('/edit/:id', editQuestion); // Endpoint to edit a question by ID
+router.put('/editquestion/:id', editQuestion); // Endpoint to edit a question by ID
 // router.get('/getfilterquestions',getTotalQuestions)
 
 router.get('/get-result/:userId/:testId', createtestmodulecontroller.getResult);
@@ -38,6 +40,10 @@ router.get('/testlevels/testname/:testNameId', testcontroller.getTestLevelsByTes
 router.get('/testtitles/testlevel/:testLevelId', testcontroller.getTestTitlesByTestLevel);
 // test
 router.post('/createtest', createtestmodulecontroller.createTest);
+router.get('/gettests', createtestmodulecontroller.getAllTests);
+router.get('/gettests/:testNameId', createtestmodulecontroller.getTestsByTestNameId);
+
+
 router.get('/gettest/:id',createtestmodulecontroller.getTestById)
 router.get('/gettestresult',createtestmodulecontroller.getTestResults)
 router.post('/starttest', createtestmodulecontroller.startTest);
@@ -49,6 +55,7 @@ router.delete('/test-name/:id', testcontroller.deleteTestName); // Delete a Test
 // router.get('/gettestarray',addtestarraycontroller.getTestType)
 // router.get('/gettestarray/:id',addtestarraycontroller.getTestTypeById)
 
+router.get('/userprogress', createtestmodulecontroller.getAllUserProgress);
 
 
 

@@ -7,25 +7,68 @@ const TestResult=require('../modal/testresultmodal')
 exports.createTest = async (req, res) => {
   const { testNameId, testLevelId, testTitleId, testDescription } = req.body;
 
-  // Validate input
-  if (!testNameId || !testLevelId || !testTitleId || !testDescription) {
-    return res.status(400).json({ message: 'Missing required fields' });
-  }
-
   try {
-    // Call the createTest method from the Test model to create the test
-    const test = await Test.createTest(testNameId, testLevelId, testTitleId, testDescription);
+    const test = await Test.createOrUpdateTest(testNameId, testLevelId, testTitleId, testDescription);
 
-    // Send a successful response with the test data
-    res.status(201).json({
-      message: 'Test created successfully',
+    res.status(200).json({
+      message: test ? 'Test updated successfully' : 'Test created successfully',
       test: test,
     });
   } catch (error) {
-    console.error('Error creating test:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
+// Controller to fetch tests by testNameId
+exports.getTestsByTestNameId = async (req, res) => {
+  const { testNameId } = req.params; // Get testNameId from request params
+
+  try {
+    // Find all tests where the testName matches the provided testNameId
+    const tests = await Test.find({ testName: testNameId }).populate('testName testLevel testTitle'); // Populating related fields if necessary
+    
+    if (tests.length === 0) {
+      return res.status(404).json({ message: 'No tests found for the given testNameId' });
+    }
+
+    // Return the tests found
+    res.status(200).json({
+      message: 'Tests fetched successfully',
+      testsName: tests,
+    });
+  } catch (error) {
+    console.error('Error fetching tests:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
+
+exports.getAllTests = async (req, res) => {
+  try {
+    // Call the method to get all tests from the database and populate the necessary fields
+    const tests = await Test.find()
+      .populate('testName')  // Populating the testNameId field
+      .populate('testLevel') // Populating the testLevelId field
+      .populate('testTitle') // Populating the testLevelId field
+      .populate('questionIds')
+
+    // Populating the testTitleId field
+
+    // If no tests are found, return a 404 response
+    if (!tests || tests.length === 0) {
+      return res.status(404).json({ message: 'No tests found' });
+    }
+
+    // Send a successful response with the tests data, including populated fields
+    res.status(200).json({
+      message: 'Tests fetched successfully',
+      tests: tests,
+    });
+  } catch (error) {
+    console.error('Error fetching tests:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
 
   exports.getTestById = async (req, res) => {
     const { id } = req.params; // Extract the ID from request parameters
@@ -81,17 +124,18 @@ exports.getTestResults = async (req, res) => {
 
 
   exports.startTest = async (req, res) => {
-    const { testId, userId } = req.body; // userId to track the user and testId for the specific test
+    const { testId, userId } = req.body; // Get testId and userId from request
   
+
     try {
       // Find the test by its ID and populate the questions
-      const test = await Test.findById(testId).populate('questions');
+      const test = await Test.findById(testId).populate('questionIds'); // Populate questionIds in Test
   
       if (!test) {
         return res.status(404).json({ message: 'Test not found' });
       }
   
-      const totalQuestions = test.questions.length; // Calculate the total number of questions
+      const totalQuestions = test.questionIds.length; // Get the total number of questions for this test
   
       // Find or create the user's progress record for this test
       let userProgress = await UserTestProgress.findOne({ testId, userId });
@@ -101,14 +145,14 @@ exports.getTestResults = async (req, res) => {
         userProgress = new UserTestProgress({
           userId,
           testId,
-          answeredQuestions: [],
+          answeredQuestions: [], // Initialize an empty list of answered questions
           totalNumberofQuestions: totalQuestions, // Store total number of questions
           progress: 0, // Start from the first question
         });
         await userProgress.save();
       }
   
-      // If progress is equal to total number of questions, the test is complete
+      // If progress is equal to the total number of questions, the test is already complete
       if (userProgress.progress >= totalQuestions) {
         return res.status(200).json({
           message: 'Test already completed.',
@@ -117,11 +161,11 @@ exports.getTestResults = async (req, res) => {
         });
       }
   
-      // Get questions starting from where the user left off
-      const remainingQuestions = test.questions.slice(userProgress.progress);
+      // Get the remaining questions (those not yet answered)
+      const remainingQuestions = test.questionIds.slice(userProgress.progress);
   
       res.status(200).json({
-        message: 'Test resumed successfully!',
+        message: 'Test started successfully!',
         testName: test.testName,
         questions: remainingQuestions, // Return only unanswered questions
         progress: userProgress.progress, // Current progress
@@ -129,10 +173,9 @@ exports.getTestResults = async (req, res) => {
       });
     } catch (error) {
       console.error(error);
-      res.status(500).json({ message: 'Failed to resume the test.' });
+      res.status(500).json({ message: 'Failed to start the test' });
     }
   };
-  
 
   exports.getResult = async (req, res) => {
     const { userId, testId } = req.params; // Fetch userId and testId from params
@@ -200,7 +243,7 @@ exports.getTestResults = async (req, res) => {
     }
   };
 
-exports.submitAnswers = async (req, res) => {
+  exports.submitAnswers = async (req, res) => {
     const { userId, testId, answer } = req.body; // Single question-answer pair
   
     // Validate input
@@ -226,6 +269,7 @@ exports.submitAnswers = async (req, res) => {
           answeredQuestions: [],
           totalNumberofQuestions: totalQuestions,
           progress: 0, // Start at the first question
+          status: 'Incomplete', // Initially incomplete
         });
       }
   
@@ -257,7 +301,6 @@ exports.submitAnswers = async (req, res) => {
       // Track the answer for the current question
       userProgress.answeredQuestions.push({
         questionId: currentQuestion._id,
-        questionText: currentQuestion.questionText,
         userAnswer: answer.answer,
         isAnswered: true,
         isCorrect,
@@ -265,6 +308,11 @@ exports.submitAnswers = async (req, res) => {
   
       // Update progress to the next question
       userProgress.progress = userProgress.answeredQuestions.length;
+  
+      // Update the status based on progress
+      if (userProgress.progress >= totalQuestions) {
+        userProgress.status = 'Complete'; // Set status to Complete when all questions are answered
+      }
   
       // Save the updated user progress
       await userProgress.save();
@@ -279,6 +327,7 @@ exports.submitAnswers = async (req, res) => {
         progress: userProgress.progress,
         totalQuestions,
         isCorrect,
+        status: userProgress.status, // Return the status
         isTestComplete,
         answeredQuestions: userProgress.answeredQuestions,
       });
@@ -287,4 +336,32 @@ exports.submitAnswers = async (req, res) => {
       res.status(500).json({ message: 'Failed to submit the answer and update progress.' });
     }
   };
+
+  // API to get all user progress data
+exports.getAllUserProgress = async (req, res) => {
+  try {
+    // Fetch all user progress records from the collection
+    const userProgressData = await UserTestProgress.find();
+
+    // If no records are found
+    if (!userProgressData || userProgressData.length === 0) {
+      return res.status(404).json({ message: 'No user progress data found.' });
+    }
+
+    // Map through the data to add status (Complete / Incomplete)
+    const result = userProgressData.map(progress => {
+      const status = progress.progress === progress.totalNumberofQuestions ? 'Complete' : 'Incomplete';
+      return {
+        ...progress.toObject(),
+        status: status, // Add status field to each progress record
+      };
+    });
+
+    // Return the data along with the status
+    res.status(200).json(result);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Failed to fetch user progress data.' });
+  }
+};
   

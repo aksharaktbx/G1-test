@@ -96,85 +96,90 @@ const CustomTable = ({ columns, data, rowsPerPageOptions = [5, 10, 25] }) => {
   };
 
   return (
-    <TableContainer component={Paper}>
-    <Table sx={{ minWidth: 500, borderCollapse: 'collapse' }} aria-label="custom table">
-      {/* Table Head */}
-      <TableHead>
-        <TableRow>
-          {columns.map((column) => (
-            <TableCell
-              key={column.id}
-              align={column.align || 'left'}
-              sx={{
-                fontWeight: 'bold',
-                borderRight: '1px solid rgba(224, 224, 224, 1)',
-                padding: '8px', // Reduced padding
-                '&:last-child': { borderRight: 'none' },
-              }}
-            >
-              {column.label}
-            </TableCell>
-          ))}
-        </TableRow>
-      </TableHead>
-  
-      {/* Table Body */}
-      <TableBody>
-        {(rowsPerPage > 0
-          ? data.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-          : data
-        ).map((row, index) => (
-          <TableRow
-            key={index}
-            sx={{
-              borderBottom: '1px solid rgba(224, 224, 224, 1)',
-              '&:last-child td': { borderBottom: 'none' },
-            }}
-          >
+    <TableContainer
+      component={Paper}
+      sx={{
+        borderRadius: '12px', // Rounded corners
+        boxShadow: 2, // Optional: Add shadow for extra styling
+      }}
+    >
+      <Table sx={{ minWidth: 500, borderCollapse: 'collapse' }} aria-label="custom table">
+        {/* Table Head */}
+        <TableHead>
+          <TableRow>
             {columns.map((column) => (
               <TableCell
                 key={column.id}
                 align={column.align || 'left'}
                 sx={{
+                  fontWeight: 'bold',
                   borderRight: '1px solid rgba(224, 224, 224, 1)',
                   padding: '8px', // Reduced padding
                   '&:last-child': { borderRight: 'none' },
                 }}
               >
-                {row[column.id]}
+                {column.label}
               </TableCell>
             ))}
           </TableRow>
-        ))}
-        {emptyRows > 0 && (
-          <TableRow style={{ height: 36 * emptyRows }}>
-            <TableCell colSpan={columns.length} />
+        </TableHead>
+
+        {/* Table Body */}
+        <TableBody>
+          {(rowsPerPage > 0
+            ? data.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+            : data
+          ).map((row, index) => (
+            <TableRow
+              key={index}
+              sx={{
+                borderBottom: '1px solid rgba(224, 224, 224, 1)',
+                '&:last-child td': { borderBottom: 'none' },
+              }}
+            >
+              {columns.map((column) => (
+                <TableCell
+                  key={column.id}
+                  align={column.align || 'left'}
+                  sx={{
+                    borderRight: '1px solid rgba(224, 224, 224, 1)',
+                    padding: '8px', // Reduced padding
+                    '&:last-child': { borderRight: 'none' },
+                  }}
+                >
+                  {row[column.id]}
+                </TableCell>
+              ))}
+            </TableRow>
+          ))}
+          {emptyRows > 0 && (
+            <TableRow style={{ height: 36 * emptyRows }}>
+              <TableCell colSpan={columns.length} />
+            </TableRow>
+          )}
+        </TableBody>
+
+        {/* Table Footer */}
+        <TableFooter>
+          <TableRow>
+            <TablePagination
+              rowsPerPageOptions={rowsPerPageOptions}
+              colSpan={columns.length}
+              count={data.length}
+              rowsPerPage={rowsPerPage}
+              page={page}
+              onPageChange={handleChangePage}
+              onRowsPerPageChange={handleChangeRowsPerPage}
+              ActionsComponent={TablePaginationActions}
+              sx={{
+                '& .MuiTablePagination-toolbar': { padding: '4px 8px' }, // Reduce toolbar padding
+                '& .MuiTablePagination-input': { padding: '2px 4px' }, // Reduce input padding
+              }}
+            />
           </TableRow>
-        )}
-      </TableBody>
-  
-      {/* Table Footer */}
-      <TableFooter>
-        <TableRow>
-          <TablePagination
-            rowsPerPageOptions={rowsPerPageOptions}
-            colSpan={columns.length}
-            count={data.length}
-            rowsPerPage={rowsPerPage}
-            page={page}
-            onPageChange={handleChangePage}
-            onRowsPerPageChange={handleChangeRowsPerPage}
-            ActionsComponent={TablePaginationActions}
-            sx={{
-              '& .MuiTablePagination-toolbar': { padding: '4px 8px' }, // Reduce toolbar padding
-              '& .MuiTablePagination-input': { padding: '2px 4px' }, // Reduce input padding
-            }}
-          />
-        </TableRow>
-      </TableFooter>
-    </Table>
-  </TableContainer>
-  
+        </TableFooter>
+      </Table>
+    </TableContainer>
   );
 };
 

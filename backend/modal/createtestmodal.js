@@ -8,6 +8,11 @@ const testSchema = new mongoose.Schema({
     ref: 'TestName', // Reference to the TestName model
     required: true,
   },
+  testTitle: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'TestTitle', // Reference to the TestTitle model
+    required: true,
+  },
   questionIds: [
     {
       type: mongoose.Schema.Types.ObjectId,
@@ -38,13 +43,20 @@ const testSchema = new mongoose.Schema({
   },
 });
 
-// Method to create a test and calculate total questions
-testSchema.statics.createTest = async function (testNameId, testLevelId, testTitleId, testDescription) {
+// Method to create or update a test and calculate total questions
+testSchema.statics.createOrUpdateTest = async function (testNameId, testLevelId, testTitleId, testDescription) {
   try {
     // Correct usage of ObjectId conversion using the 'new' keyword
     const testNameObjId = new mongoose.Types.ObjectId(testNameId); 
     const testLevelObjId = new mongoose.Types.ObjectId(testLevelId);
     const testTitleObjId = new mongoose.Types.ObjectId(testTitleId);
+
+    // Check if the test already exists
+    let test = await Test.findOne({
+      testName: testNameObjId,
+      testLevel: testLevelObjId,
+      testTitle: testTitleObjId,
+    });
 
     // Fetch all questions matching the provided test name, level, and title
     const questions = await Question.find({
@@ -53,45 +65,53 @@ testSchema.statics.createTest = async function (testNameId, testLevelId, testTit
       testTitle: testTitleObjId,
     });
 
-    // Extract question IDs
-    const questionIds = questions.map(question => question._id);
+    const newQuestionIds = questions.map(question => question._id);
 
-    // Create a new test document with the question IDs and other details
-    const test = new this({
-      testName: testNameObjId,
-      testLevel: testLevelObjId,
-      testDescription: testDescription,
-      questionIds: questionIds,
-      totalQuestions: questions.length,
-    });
+    // If the test exists, update it
+    if (test) {
+      // Only add new question IDs that are not already in the test
+      const existingQuestionIds = new Set(test.questionIds.map(id => id.toString())); // Set for quick lookup
+      const uniqueNewQuestionIds = newQuestionIds.filter(id => !existingQuestionIds.has(id.toString()));
 
-    // Save the test document
-    await test.save();
+      // If there are new questions, update the questionIds array
+      if (uniqueNewQuestionIds.length > 0) {
+        test.questionIds = [...test.questionIds, ...uniqueNewQuestionIds];
+        test.totalQuestions = test.questionIds.length;  // Recalculate total questions
+      }
 
-    // Calculate passing marks and mistakes allowed
-    test.passingMarks = Math.ceil(test.totalQuestions * (test.passingScore / 100));
-    test.mistakesAllowed = test.totalQuestions - test.passingMarks;
+      // Recalculate passing marks and mistakes allowed
+      test.passingMarks = Math.ceil(test.totalQuestions * (test.passingScore / 100));
+      test.mistakesAllowed = test.totalQuestions - test.passingMarks;
 
-    // Save the test again after updating the passing marks and mistakes allowed
-    await test.save();
+      // Save the updated test
+      await test.save();
 
-    return test;
+      return test;
+    } else {
+      // If the test doesn't exist, create a new test
+      test = new Test({
+        testName: testNameObjId,
+        testLevel: testLevelObjId,
+        testTitle: testTitleObjId,
+        testDescription: testDescription,
+        questionIds: newQuestionIds,
+        totalQuestions: newQuestionIds.length,
+      });
+
+      // Calculate passing marks and mistakes allowed
+      test.passingMarks = Math.ceil(test.totalQuestions * (test.passingScore / 100));
+      test.mistakesAllowed = test.totalQuestions - test.passingMarks;
+
+      // Save the test
+      await test.save();
+
+      return test;
+    }
   } catch (error) {
-    console.error('Error creating test:', error);
+    console.error('Error creating/updating test:', error);
     throw error;
   }
 };
-
-// Middleware to calculate total questions, passing marks, and mistakes allowed
-testSchema.pre('save', function (next) {
-  // Calculate passing marks: 80% of total questions (round up to nearest integer)
-  this.passingMarks = Math.ceil(this.totalQuestions * (this.passingScore / 100));
-
-  // Calculate mistakes allowed: remaining questions after passing marks
-  this.mistakesAllowed = this.totalQuestions - this.passingMarks;
-
-  next();
-});
 
 const Test = mongoose.model('Test', testSchema);
 

@@ -94,8 +94,9 @@ const AddTest = () => {
 
   return (
     <>
-      <div className="container mx-auto p-4">
-        <h1 className="text-2xl font-semibold mb-8 text-indigo-600">Create Test</h1>
+            <h1 className="text-2xl font-semibold mb-2">Create Test</h1>
+
+      <div className="container mx-auto p-4 bg-white">
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* Test Name Dropdown */}

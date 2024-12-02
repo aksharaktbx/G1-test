@@ -4,6 +4,9 @@ import SmallCustomtable from '../Custom/SmallCustomtable';
 import Custompopup from '../Custom/Custompopup';
 import axios from 'axios';
 import { FaTrash } from 'react-icons/fa';
+import { Button } from '@mui/material';
+import AddIcon from '@mui/icons-material/Add';  // Import AddIcon
+
 
 const Managetest = () => {
     const [isPopupOpen, setIsPopupOpen] = useState(false);
@@ -20,16 +23,17 @@ const Managetest = () => {
     const [typeName, setTypeName] = useState('');  // State for test name
     const [description, setDescription] = useState('');  // State for description
     const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
+    const [testdata,settestdata]=useState([])
+
 
     // Define table columns
     const columns = [
-        { id: 'id', label: 'ID' },
-        { id: 'questionText', label: 'Question' },
-        { id: 'image', label: 'Image' },
-        { id: 'options', label: 'Options' },
-        { id: 'correctAnswer', label: 'Correct Answer' },
-        { id: 'category', label: 'Category' },
-        { id: 'actions', label: 'Actions' },
+       
+        { id: 'test', label: 'Test' },
+        { id: 'questions', label: 'Questions' },
+     
+        { id: 'actions', label: 'Desc.' },
     ];
 
     const columns1 = [
@@ -56,6 +60,82 @@ const Managetest = () => {
         { accessor: 'titleDescription', Header: 'Description' },
         { accessor: 'actions', Header: 'Actions' }
     ];
+     // Fetch all tests (initially)
+  useEffect(() => {
+    const fetchTests = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/gettests');
+        if (!response.ok) throw new Error('Failed to fetch tests');
+        const data = await response.json();
+
+        console.log(data.tests)
+        const testNames = data.tests.map((test, index) => ({
+           
+        
+            test:<>
+           <div>
+    <div className="flex mb-2 items-center">
+        <h3 className="text-lg  mr-2">Test Name:</h3>
+        <span className="text-base text-gray-600 text-sm	">{test.testName.testName}</span>
+    </div>
+    <div className="flex mb-2 items-center">
+        <h3 className="text-lg  mr-2">Test Level:</h3>
+        <span className="text-base text-gray-600 text-sm	">{test.testLevel.testLevelName}</span>
+    </div>
+    <div className="flex mb-2 items-center">
+        <h3 className="text-lg mr-2">Test Title:</h3>
+        <span className="text-base text-gray-600 text-sm	">{test.testTitle.testTitleName}</span>
+    </div>
+</div>
+
+            </>,
+             questions: (
+                <div className=' flex flex-col '>
+                  {/* Assuming `questionIds` is an array of question objects */}
+                  {test.questionIds && test.questionIds.length > 0 ? (
+                    test.questionIds.map((question,index) => (
+                      <div key={question._id} className='mb-2 '>
+                        <p>{index+1}.{question.questionText}</p>
+                      </div>
+                    ))
+                  ) : (
+                    <p>No questions available</p>
+                  )}
+                </div>
+              ),
+            actions: (
+              <>
+              <div className='flex flex-col justify-between'>
+              <div className='flex flex-col'>
+              <span> Total-Questions:{test.totalQuestions}</span>
+              <span> Passing Score:{test.passingScore}%</span>
+              <span> Passing Marks:{test.totalQuestions}questions</span>
+              <span> Mistakes Allowed:{test.mistakesAllowed}</span>
+
+              </div>
+              <button 
+    type="button" 
+    class="text-green-700 text-xs hover:text-white border border-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 dark:border-green-500 dark:text-green-500 dark:hover:text-white dark:hover:bg-green-600 dark:focus:ring-green-800 mt-auto"
+  >
+    Add More Questions
+  </button>
+  </div>
+              
+              </>
+            )
+        }));
+        settestdata(testNames)
+        // Check if data.tests is an array before setting it
+       
+      } catch (error) {
+        setError(error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTests();
+  }, []);
 
     // Fetch Test Names, Test Levels, and Test Titles from the server
     const fetchTestData = async () => {
@@ -236,7 +316,6 @@ const Managetest = () => {
         }
     };
 
-    const data = []; // Table data (could be fetched from an API)
 
     // Function to handle the "Add Test Name" button click
     const togglePopup = () => {
@@ -275,31 +354,48 @@ const Managetest = () => {
     return (
         <>
             <div>
-                <div className="flex justify-between items-center">
-                    <h1 className="text-2xl font-semibold pb-2 text-blue-600 mb-2">Manage Test</h1>
-                    <div className='flex gap-2'>
-                        <button
-                            className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition duration-300"
-                            onClick={togglePopup}
-                        >
-                            Add Test Name
-                        </button>
-                        <button
-                            className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition duration-300"
-                            onClick={togglePopup4}
-                        >
-                            Add Test Level
-                        </button>
-                        <button
-                            className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition duration-300"
-                            onClick={toggleTitlePopup}
-                        >
-                            Add Test Title
-                        </button>
-                    </div>
-                </div>
+                <div className="flex justify-between items-center mb-4">
+                    <h1 className="text-2xl font-semibold pb-2  ">Manage Test</h1>
+                    <div className="flex gap-2">
+  {/* Add Test Name Button */}
+  <button
+    type="button"
+    className="px-3 py-2 text-xs font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+    onClick={togglePopup}
+  >
+    Add Test Name
+  </button>
 
-                <CustomTable columns={columns} data={data} />
+  {/* Add Test Level Button */}
+  <button
+    type="button"
+    className="px-3 py-2 text-xs font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+    onClick={togglePopup4}
+  >
+    Add Test Level
+  </button>
+
+  {/* Add Test Title Button */}
+  <button
+    type="button"
+    className="px-3 py-2 text-xs font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+    onClick={toggleTitlePopup}
+  >
+    Add Test Title
+  </button>
+
+  {/* Create Test Button */}
+  <button
+    type="button"
+    className="px-3 py-2 text-xs font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+  >
+    Create Test
+  </button>
+</div>
+
+                </div>
+                
+                <CustomTable columns={columns} data={testdata} />
             </div>
 
             {/* Custom Popup for Adding Test Name */}

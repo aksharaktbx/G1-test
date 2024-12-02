@@ -1,5 +1,6 @@
 const express = require('express');
 const connectDB = require('./config/db');
+const path = require('path');  // Import path module to handle file paths
 require('dotenv').config(); // Load environment variables
 const questionroutes = require('./Routes/questionsroutes');
 const cors = require('cors');  // Import CORS
@@ -9,7 +10,7 @@ const app = express();
 // CORS options to allow only the specified frontend
 const corsOptions = {
   origin: 'http://localhost:3000', // Your frontend URL
-  methods: 'GET,POST,DELETE', // Allowed HTTP methods
+  methods: 'GET,POST,DELETE,PUT', // Allowed HTTP methods
   allowedHeaders: 'Content-Type', // Allowed headers
 };
 
@@ -18,6 +19,9 @@ app.use(cors(corsOptions));
 
 // Connect to MongoDB
 connectDB();
+
+// Serve static files from the 'uploads' directory
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Middleware
 app.use(express.json());

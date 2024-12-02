@@ -57,33 +57,69 @@ const deleteQuestion = async (req, res) => {
 const editQuestion = async (req, res) => {
   try {
     const { id } = req.params; // Get the question ID from the request parameters
-    const { questionText, options, correctAnswer, category } = req.body; // Get updated question data
-    let image = req.file ? req.file.originalname : null; // If an image is uploaded, get the filename
+    const { questionText, options, correctAnswer, testName, testLevel, testTitle, category } = req.body; // Get updated question data
+
+    // Get the uploaded image filename if there is one
+    let image = req.file ? req.file.originalname : null;
+
+    // Construct an object with all the fields that can be updated
+    const updatedData = {
+      questionText,
+      options,
+      correctAnswer,
+      testName,
+      testLevel,
+      testTitle,
+      category,
+      image
+    };
 
     // Find the question by ID and update it
-    const updatedQuestion = await Question.findByIdAndUpdate(
-      id,
-      { questionText, options, correctAnswer, category, image },
-      { new: true } // Return the updated document
-    );
+    const updatedQuestion = await Question.findByIdAndUpdate(id, updatedData, { new: true });
 
+    // Check if the question exists
     if (!updatedQuestion) {
       return res.status(404).json({ message: 'Question not found' });
     }
 
-    res.status(200).json({ message: 'Question updated successfully', question: updatedQuestion });
+    // Return success response with the updated question data
+    res.status(200).json({
+      message: 'Question updated successfully!',
+      question: updatedQuestion
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Failed to update question' });
   }
 };
 
+// Get a question by ID from the database
+const getQuestionById = async (req, res) => {
+  try {
+    const { id } = req.params; // Get the question ID from the request parameters
+    
+    // Find the question by ID
+    const question = await Question.findById(id);
+
+    if (!question) {
+      return res.status(404).json({ message: 'Question not found' });
+    }
+
+    // Return the found question
+    res.status(200).json({ message: 'Question retrieved successfully', question });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Failed to retrieve question' });
+  }
+};
+
+
 
 
 // Retrieve all questions for a specific test category
 const getQuestions = async (req, res) => {
   try {
-    const questions = await Question.find();
+    const questions = await Question.find().populate('testName');
     res.status(200).json(questions);
   } catch (error) {
     console.error(error);
@@ -134,4 +170,4 @@ const getQuestionsByTest = async (req, res) => {
   }
 };
 
-module.exports = { addQuestion, getQuestions ,deleteQuestion ,editQuestion,getQuestionsByTest };
+module.exports = { addQuestion, getQuestions ,deleteQuestion ,editQuestion,getQuestionsByTest ,getQuestionById };

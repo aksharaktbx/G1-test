@@ -1,60 +1,60 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import CustomTable from '../Custom/Customtable';
-import { IconButton, Menu, MenuItem, Select, FormControl, MenuItem as MuiMenuItem } from '@mui/material';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
-import { toast } from 'react-toastify'; // Import Toastify
+import { IconButton, Button, Dialog, DialogActions, DialogContent, DialogTitle } from '@mui/material';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
+import { toast } from 'react-toastify';
+import { useNavigate } from 'react-router-dom';
+import AddIcon from '@mui/icons-material/Add';
 
 const Questions = () => {
-  const [data, setData] = useState([]); // Ensure this is an empty array
+  const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [anchorEl, setAnchorEl] = useState(null);
-  const [selectedRow, setSelectedRow] = useState(null);
+  const [error, setError] = useState(null);
+  const [openImageModal, setOpenImageModal] = useState(false); // For controlling the image modal
+  const [imageUrl, setImageUrl] = useState(''); // For storing the image URL to be displayed in the modal
 
-  // Fetch all data from the API
+  const navigate = useNavigate();
+
   useEffect(() => {
     const fetchQuestions = async () => {
       setLoading(true);
       try {
-        const response = await axios.get('http://localhost:5000/getquestions'); // No pagination here
-        const questions = response.data; // Assuming the response contains an array of questions
-        // Process and set data
+        const response = await axios.get('http://localhost:5000/getquestions');
+        const questions = response.data;
         const processedQuestions = questions.map((question, index) => ({
           ...question,
-          id: index+1, // Assign a simple ID based on the MongoDB _id
+          id: index + 1,
           actions: (
             <div>
-              <IconButton onClick={(e) => handleClick(e, question)}>  {/* Pass the question to handleClick */}
-                <MoreVertIcon />
+              <IconButton onClick={() => handleEdit(question)} color="primary">
+                <EditIcon />
+              </IconButton>
+              <IconButton onClick={() => handleDelete(question)} color="secondary">
+                <DeleteIcon />
               </IconButton>
             </div>
           ),
           questionText: question.questionText,
-          image: <img src={`http://localhost:5000/uploads/${question.image}`} alt="Question" className="w-16 h-16" />,
+          image: (
+            <img 
+              src={`http://localhost:5000/uploads/${question.image}`} 
+              alt="Question" 
+              className="w-14 h-8 object-cover border border-gray-300 cursor-pointer"
+              onClick={() => openImage(question.image)} // Trigger the image modal
+            />
+          ),
           options: (
-            <FormControl fullWidth>
-              <Select
-                value=""
-                onChange={(e) => console.log('Selected option:', e.target.value)}
-                displayEmpty
-                inputProps={{ 'aria-label': 'Without label' }}
-              >
-                <MuiMenuItem value="" disabled>
-                  <em>View</em>
-                </MuiMenuItem>
-                {question.options.map((opt, index) => (
-                  <MuiMenuItem key={index} value={opt}>
-                    {opt}
-                  </MuiMenuItem>
-                ))}
-              </Select>
-            </FormControl>
+            <div>
+              {/* You can add options logic here */}
+            </div>
           ),
           correctAnswer: question.correctAnswer,
-          category: question.category,
+          category: question.testName.testName,
         }));
 
-        setData(processedQuestions); // Set the fetched data
+        setData(processedQuestions);
       } catch (error) {
         console.error('Error fetching questions:', error);
       } finally {
@@ -63,37 +63,20 @@ const Questions = () => {
     };
 
     fetchQuestions();
-  }, []); // Fetch once when the component is mounted
+  }, []);
 
-  // Handle click for the action menu
-  const handleClick = (event, question) => {
-    setAnchorEl(event.currentTarget);
-    setSelectedRow(question); // Set selected question here
+  const handleEdit = (question) => {
+    console.log('Edit action for:', question);
+    navigate(`/dashboard/edit-question/${question._id}`);
   };
 
-  // Close the action menu
-  const handleClose = () => {
-    setAnchorEl(null);
-    setSelectedRow(null);
-  };
-
-  // Handle edit action
-  const handleEdit = () => {
-    console.log('Edit action for:', selectedRow);
-    handleClose();
-  };
-
-  // Handle delete action
-  const handleDelete = async () => {
-    console.log(selectedRow._id)
+  const handleDelete = async (question) => {
+    console.log('Delete action for:', question._id);
     try {
-      const response = await axios.delete(`http://localhost:5000/delete/${selectedRow._id}`);
+      const response = await axios.delete(`http://localhost:5000/delete/${question._id}`);
       if (response.status === 200 || response.status === 201) {
-        // Show toast notification on success
         toast.success('Question deleted successfully');
-        // Remove the deleted row from data
-        setData(prevData => prevData.filter(row => row.id !== selectedRow.id)); // Properly update state
-        handleClose(); // Close the menu after deletion
+        setData(prevData => prevData.filter(row => row.id !== question.id));
       } else {
         toast.error('Failed to delete question');
       }
@@ -103,7 +86,6 @@ const Questions = () => {
     }
   };
 
-  // Define table columns
   const columns = [
     { id: 'id', label: 'ID' },
     { id: 'questionText', label: 'Question' },
@@ -114,27 +96,57 @@ const Questions = () => {
     { id: 'actions', label: 'Actions' },
   ];
 
-  // If loading, show loading message
+  const handleAddQuestion = () => {
+    navigate('/dashboard/Addquestion');
+  };
+
+  // Open image in modal
+  const openImage = (image) => {
+    setImageUrl(`http://localhost:5000/uploads/${image}`);
+    setOpenImageModal(true);
+  };
+
+  // Close image modal
+  const closeImageModal = () => {
+    setOpenImageModal(false);
+  };
+
   if (loading) {
     return <p>Loading...</p>;
   }
 
   return (
     <div>
-      <h1 className="text-4xl font-bold text-blue-600 mt-6 mb-4">Questions</h1>
-
-      {/* Render CustomTable */}
+      <div className="flex justify-between items-center mb-4">
+        <h1 className="text-2xl font-semibold">Questions</h1>
+        <Button
+          variant="contained"
+          color="primary"
+          startIcon={<AddIcon />}
+          onClick={handleAddQuestion}
+        >
+          Add Question
+        </Button>
+      </div>
+      {/* Custom Table rendering */}
       <CustomTable columns={columns} data={data} rowsPerPageOptions={[5, 10, 25]} />
 
-      {/* Action Menu (Edit/Delete) */}
-      <Menu
-        anchorEl={anchorEl}
-        open={Boolean(anchorEl)}
-        onClose={handleClose}
-      >
-        <MenuItem onClick={handleEdit}>Edit</MenuItem>
-        <MenuItem onClick={handleDelete}>Delete</MenuItem>
-      </Menu>
+      {/* Modal to show image */}
+      <Dialog open={openImageModal} onClose={closeImageModal}>
+        <DialogTitle>Question Image</DialogTitle>
+        <DialogContent>
+          <img 
+            src={imageUrl} 
+            alt="Question" 
+            className="w-full h-auto object-contain" 
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={closeImageModal} color="primary">
+            Close
+          </Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 };

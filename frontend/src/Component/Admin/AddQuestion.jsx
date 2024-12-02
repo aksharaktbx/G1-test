@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { FaUpload } from 'react-icons/fa'; // Importing the Upload icon from react-icons
+
 
 function AddQuestion() {
   const [question, setQuestion] = useState('');
@@ -112,171 +114,187 @@ function AddQuestion() {
       setLoading(false);
     }
   };
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    setImage(file);
+  };
 
   return (
     <>
+      <h1 className="text-2xl font-semibold mb-4">Add Question</h1>
     
-    <h1 className="text-xl font-semibold mb-8  text-indigo-600">Add New Question</h1>
-    
-    <div className="w-full mx-auto bg-white rounded-lg   shadow-lg">
-      <form onSubmit={handleSubmit} className="space-y-4  p-3">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-  {/* Test Name Dropdown */}
-  <div className="space-y-2">
-    <label htmlFor="testName" className="block text-sm font-medium text-gray-700">
-      Select Test Name
-    </label>
-    <select
-      id="testName"
-      className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-600"
-      value={selectedTestName}
-      onChange={(e) => setSelectedTestName(e.target.value)}
-      required
-    >
-      <option value="">Select Test Name</option>
-      {testNames.map((test) => (
-        <option key={test._id} value={test._id}>
-          {test.testName}
-        </option>
-      ))}
-    </select>
-  </div>
-
-  {/* Test Level Dropdown */}
-  <div className="space-y-2">
-    <label htmlFor="testLevel" className="block text-sm font-medium text-gray-700">
-      Select Test Level
-    </label>
-    <select
-      id="testLevel"
-      className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-600"
-      value={selectedTestLevel}
-      onChange={(e) => setSelectedTestLevel(e.target.value)}
-      required
-    >
-      <option value="">Select Test Level</option>
-      {testLevels.map((level) => (
-        <option key={level._id} value={level._id}>
-          {level.testLevelName}
-        </option>
-      ))}
-    </select>
-  </div>
-
-  {/* Test Title Dropdown */}
-  <div className="space-y-2">
-    <label htmlFor="testTitle" className="block text-sm font-medium text-gray-700">
-      Select Test Title
-    </label>
-    <select
-      id="testTitle"
-      className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-600"
-      value={selectedTestTitle}
-      onChange={(e) => setSelectedTestTitle(e.target.value)}
-      required
-    >
-      <option value="">Select Test Title</option>
-      {testTitles.map((title) => (
-        <option key={title._id} value={title._id}>
-          {title.testTitleName}
-        </option>
-      ))}
-    </select>
-  </div>
-</div>
-
-        <div className="space-y-2">
-          <label htmlFor="question" className="block text-sm font-medium text-gray-700">Question</label>
-          <textarea
-            id="question"
-            className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-600"
-            value={question}
-            onChange={(e) => setQuestion(e.target.value)}
-            rows="4"
-            required
-          ></textarea>
-        </div>
-
-        <div className="grid grid-cols-2 gap-6">
-          {[option1, option2, option3, option4].map((option, index) => (
-            <div key={index} className="space-y-2">
-              <label htmlFor={`option${index + 1}`} className="block text-sm font-medium text-gray-700">
-                Option {index + 1}
+      <div className="w-full mx-auto bg-white rounded-lg">
+        <form onSubmit={handleSubmit} className="space-y-4 p-3">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* Test Name Dropdown */}
+            <div className="space-y-2">
+              <label htmlFor="testName" className="block text-sm font-medium text-gray-700">
+                Select Test Name
               </label>
-              <input
-                type="text"
-                id={`option${index + 1}`}
+              <select
+                id="testName"
                 className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-600"
-                value={option}
-                onChange={(e) => {
-                  if (index === 0) setOption1(e.target.value);
-                  if (index === 1) setOption2(e.target.value);
-                  if (index === 2) setOption3(e.target.value);
-                  if (index === 3) setOption4(e.target.value);
-                }}
+                value={selectedTestName}
+                onChange={(e) => setSelectedTestName(e.target.value)}
                 required
-              />
+              >
+                <option value="">Select Test Name</option>
+                {testNames.map((test) => (
+                  <option key={test._id} value={test._id}>
+                    {test.testName}
+                  </option>
+                ))}
+              </select>
             </div>
-          ))}
-        </div>
 
-        <div className="space-y-2">
-          <label htmlFor="correctAnswer" className="block text-sm font-medium text-gray-700">Correct Answer</label>
-          <select
-            id="correctAnswer"
-            className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-600"
-            value={correctAnswer}
-            onChange={(e) => setCorrectAnswer(e.target.value)}
-            required
-          >
-            <option value="">Select Correct Answer</option>
-            <option value={option1}>Option 1: {option1}</option>
-            <option value={option2}>Option 2: {option2}</option>
-            <option value={option3}>Option 3: {option3}</option>
-            <option value={option4}>Option 4: {option4}</option>
-          </select>
-        </div>
+            {/* Test Level Dropdown */}
+            <div className="space-y-2">
+              <label htmlFor="testLevel" className="block text-sm font-medium text-gray-700">
+                Select Test Level
+              </label>
+              <select
+                id="testLevel"
+                className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-600"
+                value={selectedTestLevel}
+                onChange={(e) => setSelectedTestLevel(e.target.value)}
+                required
+              >
+                <option value="">Select Test Level</option>
+                {testLevels.map((level) => (
+                  <option key={level._id} value={level._id}>
+                    {level.testLevelName}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-       
+            {/* Test Title Dropdown */}
+            <div className="space-y-2">
+              <label htmlFor="testTitle" className="block text-sm font-medium text-gray-700">
+                Select Test Title
+              </label>
+              <select
+                id="testTitle"
+                className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-600"
+                value={selectedTestTitle}
+                onChange={(e) => setSelectedTestTitle(e.target.value)}
+                required
+              >
+                <option value="">Select Test Title</option>
+                {testTitles.map((title) => (
+                  <option key={title._id} value={title._id}>
+                    {title.testTitleName}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
 
-        <div className="space-y-2">
-          <label className="block text-sm font-medium text-gray-700">Upload Image</label>
+          <div className="space-y-2">
+            <label htmlFor="question" className="block text-sm font-medium text-gray-700">Question</label>
+            <textarea
+              id="question"
+              className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-600"
+              value={question}
+              onChange={(e) => setQuestion(e.target.value)}
+              rows="4"
+              placeholder="Enter your question here"
+              required
+            ></textarea>
+          </div>
+
+          <div className="grid grid-cols-2 gap-6">
+            {[option1, option2, option3, option4].map((option, index) => (
+              <div key={index} className="space-y-2">
+                <label htmlFor={`option${index + 1}`} className="block text-sm font-medium text-gray-700">
+                  Option {index + 1}
+                </label>
+                <input
+                  type="text"
+                  id={`option${index + 1}`}
+                  className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-600"
+                  value={option}
+                  onChange={(e) => {
+                    if (index === 0) setOption1(e.target.value);
+                    if (index === 1) setOption2(e.target.value);
+                    if (index === 2) setOption3(e.target.value);
+                    if (index === 3) setOption4(e.target.value);
+                  }}
+                  placeholder={`Option ${index + 1}`}
+                  required
+                />
+              </div>
+            ))}
+          </div>
+
+          <div className="space-y-2">
+            <label htmlFor="correctAnswer" className="block text-sm font-medium text-gray-700">Correct Answer</label>
+            <select
+              id="correctAnswer"
+              className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-600"
+              value={correctAnswer}
+              onChange={(e) => setCorrectAnswer(e.target.value)}
+              required
+            >
+              <option value="">Select Correct Answer</option>
+              <option value={option1}>Option 1: {option1}</option>
+              <option value={option2}>Option 2: {option2}</option>
+              <option value={option3}>Option 3: {option3}</option>
+              <option value={option4}>Option 4: {option4}</option>
+            </select>
+          </div>
+
+          <div className="space-y-2">
+        <label className="block text-sm font-medium text-gray-700">Upload Image</label>
+
+        {/* Custom File Upload Button */}
+        <div className="relative">
           <input
             type="file"
             accept="image/png, image/jpeg"
-            onChange={(e) => {
-              const file = e.target.files[0];
-              setImage(file);
-            }}
-            className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-600"
+            onChange={handleFileChange}
+            id="imageUpload"
+            className="absolute inset-0 opacity-0 cursor-pointer"
           />
-          {image && (
-            <div className="mt-4">
-              <img
-                src={URL.createObjectURL(image)}
-                alt="Preview of the uploaded image"
-                className="w-32 h-32 object-cover border border-gray-300 rounded-lg"
-              />
-            </div>
-          )}
-        </div>
-
-        <hr />
-
-        <div className="w-full mt-2">
+          
+          {/* Icon Button */}
           <button
-            type="submit"
-            className="py-3 p-4 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-300 ease-in-out max-w-xs"
-            disabled={loading}
+            htmlFor="imageUpload"
+            className="w-full p-4 border border-gray-300 rounded-lg shadow-sm flex justify-center items-center bg-gray-100 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500"
           >
-            {loading ? 'Adding...' : 'Add Question'}
+            <FaUpload className="text-2xl text-gray-500" />
+            <span className="ml-2 text-gray-600">Choose an Image</span>
           </button>
         </div>
-      </form>
 
-      {success && <div className="mt-4 text-green-600">{success}</div>}
-      {error && <div className="mt-4 text-red-600">{error}</div>}
-    </div>
+        {/* Image Preview */}
+        {image && (
+          <div className="mt-4">
+            <img
+              src={URL.createObjectURL(image)}
+              alt="Preview of the uploaded image"
+              className="w-32 h-32 object-cover border border-gray-300 rounded-lg"
+            />
+          </div>
+        )}
+      </div>
+
+          <hr />
+
+          <div className="w-full mt-2">
+            <button
+              type="submit"
+              className="py-3 p-4 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-300 ease-in-out max-w-xs"
+              disabled={loading}
+            >
+              {loading ? 'Adding...' : 'Add Question'}
+            </button>
+          </div>
+        </form>
+
+        {success && <div className="mt-4 text-green-600">{success}</div>}
+        {error && <div className="mt-4 text-red-600">{error}</div>}
+      </div>
     </>
   );
 }

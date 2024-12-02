@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const UserTestProgressSchema = new mongoose.Schema({
-  userId: { type:String, required: true },
+  userId: { type: String, required: true },
   testId: { type: mongoose.Schema.Types.ObjectId, ref: 'Test', required: true },
   answeredQuestions: [
     {
@@ -13,8 +13,8 @@ const UserTestProgressSchema = new mongoose.Schema({
   ],
   totalNumberofQuestions: { type: Number, required: true },
   progress: { type: Number, default: 0 },
+  status: { type: String, default: 'Incomplete' }, // Add status field
 });
 
 const UserTestProgress = mongoose.model('UserTestProgress', UserTestProgressSchema);
-
 module.exports = UserTestProgress;
