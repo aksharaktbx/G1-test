@@ -53,8 +53,12 @@ exports.getTestLevelsByTestName = async (req, res) => {
 
 exports.addTestTitle = async (req, res) => {
   const { testTitleName, testTitleDescription, testLevel } = req.body;
+  
+  let image = req.file ? req.file.originalname : null; // Get the image filename if uploaded
+
   try {
-    const newTestTitle = new TestTitle({ testTitleName, testTitleDescription, testLevel });
+    const newTestTitle = new TestTitle({ testTitleName, testTitleDescription, testLevel,image});
+
     await newTestTitle.save();
     res.status(201).json({ message: 'Test Title added successfully', data: newTestTitle });
   } catch (error) {

@@ -30,7 +30,7 @@ router.get('/test-level', testcontroller.getAllTestLevels); // Get all Test Leve
 router.delete('/test-level/:id', testcontroller.deleteTestLevel); // Delete a Test Level
 
 // Test Title Routes
-router.post('/test-title', testcontroller.addTestTitle); // Add a Test Title
+router.post('/test-title', upload.single('image'), testcontroller.addTestTitle); // Add a Test Title
 router.get('/test-title',testcontroller.getAllTestTitles); // Get all Test Titles
 router.delete('/test-title/:id', testcontroller.deleteTestTitle); // Delete a Test Title
 
@@ -42,6 +42,7 @@ router.get('/testtitles/testlevel/:testLevelId', testcontroller.getTestTitlesByT
 router.post('/createtest', createtestmodulecontroller.createTest);
 router.get('/gettests', createtestmodulecontroller.getAllTests);
 router.get('/gettests/:testNameId', createtestmodulecontroller.getTestsByTestNameId);
+
 
 
 router.get('/gettest/:id',createtestmodulecontroller.getTestById)

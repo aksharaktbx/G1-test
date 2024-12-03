@@ -4,8 +4,7 @@ import SmallCustomtable from '../Custom/SmallCustomtable';
 import Custompopup from '../Custom/Custompopup';
 import axios from 'axios';
 import { FaTrash } from 'react-icons/fa';
-import { Button } from '@mui/material';
-import AddIcon from '@mui/icons-material/Add';  // Import AddIcon
+
 
 
 const Managetest = () => {
@@ -24,6 +23,7 @@ const Managetest = () => {
     const [description, setDescription] = useState('');  // State for description
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+    const [image,setImage]=useState(null)
     const [testdata,settestdata]=useState([])
 
 
@@ -226,10 +226,7 @@ const Managetest = () => {
     };
 
     const handleAddTestLevel = async () => {
-        if (!newTestLevel.trim() || !newTestName) {
-            alert('Test Level Name and Test Name cannot be empty!');
-            return;
-        }
+      
 
         try {
             const response = await axios.post('http://localhost:5000/test-level', {
@@ -248,35 +245,65 @@ const Managetest = () => {
         }
     };
 
-    const handleAddTestTitle = async () => {
-        if (!newTestTitleName.trim() || !newTestTitleDescription.trim() || !newTestLevel) {
-            alert('Test Title Name, Description, and Test Level cannot be empty!');
-            return;
+    // const handleAddTestTitle = async () => {
+    //     if (!newTestTitleName.trim() || !newTestTitleDescription.trim() || !newTestLevel) {
+    //         alert('Test Title Name, Description, and Test Level cannot be empty!');
+    //         return;
+    //     }
+
+    //     console.log("testTitleName", newTestTitleName )
+    //     console.log('testTitleDescription' ,newTestTitleDescription)
+    //     console.log('testLevel' ,newTestLevel)
+
+    //     try {
+    //         const response = await axios.post('http://localhost:5000/test-title', {
+    //             testTitleName: newTestTitleName,
+    //             testTitleDescription: newTestTitleDescription,
+    //             testLevel: newTestLevel
+    //         });
+    //         if (response.status === 201) {
+    //             alert('Test Title added successfully!');
+    //             toggleTitlePopup();
+    //             setNewTestTitleName('');
+    //             setNewTestTitleDescription('');
+    //             fetchTestData(); // Refresh data after adding
+    //         }
+    //     } catch (error) {
+    //         console.error('Error adding Test Title:', error);
+    //         alert('Failed to add Test Title. Please try again.');
+    //     }
+    // };
+
+    // Handle form submission
+const handleAddTestTitle = async (e) => {
+    
+    const formData = new FormData();
+    formData.append("testTitleName", newTestTitleName);
+    formData.append("testTitleDescription", newTestTitleDescription);
+    formData.append("testLevel", newTestLevel);
+    
+    // Append the selected image file if there's one
+    if (image) {
+        formData.append("image", image);
+    }
+    
+    try {
+        const response = await fetch("http://localhost:5000/test-title", {
+            method: "POST",
+            body: formData,
+        });
+        const data = await response.json();
+        if (response.ok) {
+            console.log("Test title added:", data);
+            // Handle success (close popup, reset form, etc.)
+            toggleTitlePopup();
+        } else {
+            console.error("Error adding test title:", data.message);
         }
-
-        console.log("testTitleName", newTestTitleName )
-        console.log('testTitleDescription' ,newTestTitleDescription)
-        console.log('testLevel' ,newTestLevel)
-
-        try {
-            const response = await axios.post('http://localhost:5000/test-title', {
-                testTitleName: newTestTitleName,
-                testTitleDescription: newTestTitleDescription,
-                testLevel: newTestLevel
-            });
-            if (response.status === 201) {
-                alert('Test Title added successfully!');
-                toggleTitlePopup();
-                setNewTestTitleName('');
-                setNewTestTitleDescription('');
-                fetchTestData(); // Refresh data after adding
-            }
-        } catch (error) {
-            console.error('Error adding Test Title:', error);
-            alert('Failed to add Test Title. Please try again.');
-        }
-    };
-
+    } catch (error) {
+        console.error("Error:", error);
+    }
+};
     const deleteTestName = async (testId) => {
         try {
             const response = await axios.delete(`http://localhost:5000/test-name/${testId}`);
@@ -479,6 +506,16 @@ const Managetest = () => {
                             </option>
                         ))}
                     </select>
+                    <div className="mt-4">
+                    <label htmlFor="image" className="block text-sm font-medium text-gray-700">Test Title Image</label>
+                    <input
+                        type="file"
+                        id="image"
+                        onChange={(e) => setImage(e.target.files[0])}
+                        className="mt-2 w-full text-sm text-gray-900 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                    />
+                    {image && <p className="mt-2 text-sm text-gray-600">Selected Image: {image.name}</p>}
+                </div>
                 </Custompopup>
             )}
         </>

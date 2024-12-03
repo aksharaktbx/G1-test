@@ -12,10 +12,9 @@ const LargCard = ({
       <img 
         src={imageSrc} 
         alt={title} 
-        className="rounded-l-lg w-1/2 p-4 rounded-md object-cover" 
+        className="rounded-l-lg w-1/2  rounded-md object-cover" 
       />
       <div className="p-6 w-1/2">
-        <button className="bg-gray-200 text-gray-700 rounded-full px-3 py-1 text-sm mb-4">Try demo</button>
         <h2 className="text-2xl font-semibold mb-2">{title}</h2>
         <p className="text-gray-600 mb-4">{description}</p>
         <div className="flex items-center justify-between text-gray-600">
@@ -23,8 +22,8 @@ const LargCard = ({
             <span className="text-xl font-semibold">{questionsCount}</span>
             <span className="text-sm"> questions</span>
           </div>
-          <div>
-            <span className="text-xl font-semibold">{mistakesAllowed}</span>
+          <div className='flex flex-col'>
+            <span className="text-xl font-semibold">{mistakesAllowed} mistakes</span>
             <span className="text-sm"> Allowed to pass</span>
           </div>
         </div>

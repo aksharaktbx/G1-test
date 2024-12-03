@@ -18,6 +18,33 @@ exports.createTest = async (req, res) => {
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
+exports.getTestById = async (req, res) => {
+  const { id } = req.params; // Get testId from request params
+
+  try {
+    // Find the test by its ID and populate related fields (testName, testLevel, testTitle)
+    const test = await Test.findById(id) // Directly passing the _id here
+    .populate('testName')  // Populating the testNameId field
+    .populate('testLevel') // Populating the testLevelId field
+    .populate('testTitle') // Populating the testLevelId field
+    .populate('questionIds') // Populating the testLevelId field
+
+    if (!test) {
+      return res.status(404).json({ message: 'Test not found for the given testId' });
+    }
+
+    // Return the test details
+    res.status(200).json({
+      message: 'Test fetched successfully',
+      test: test,
+    });
+  } catch (error) {
+    console.error('Error fetching test:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
+
 // Controller to fetch tests by testNameId
 exports.getTestsByTestNameId = async (req, res) => {
   const { testNameId } = req.params; // Get testNameId from request params
@@ -70,24 +97,7 @@ exports.getAllTests = async (req, res) => {
 };
 
 
-  exports.getTestById = async (req, res) => {
-    const { id } = req.params; // Extract the ID from request parameters
-  
-    try {
-      // Find the test by its ID and populate the questions if needed
-      const test = await Test.findById(id).populate('questions');
-  
-      if (!test) {
-        return res.status(404).json({ message: 'Test not found' });
-      }
-  
-      // Send the test data as response
-      res.status(200).json({ message: 'Test fetched successfully!', test });
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ message: 'Failed to fetch test', error: error.message });
-    }
-  };
+
   // Evaluate the test results based on user responses
 exports.getTestResults = async (req, res) => {
     const { testId, userAnswers } = req.body; // userAnswers: array of { questionId, answer }
@@ -201,15 +211,22 @@ exports.getTestResults = async (req, res) => {
   
       // If all questions have been answered, calculate the result
       let correctAnswersCount = 0;
+      let wrongAnswersCount = 0;
+      
       userProgress.answeredQuestions.forEach((question) => {
         if (question.isCorrect) {
           correctAnswersCount++;
+        } else {
+          wrongAnswersCount++;
         }
       });
   
       const score = (correctAnswersCount / totalQuestions) * 100;
-      const passingPercentage = 80;
+      const passingPercentage = 80; // Pass mark is 80%
       const passed = score >= passingPercentage;
+  
+      // Calculate the needed score to pass (i.e., the number of correct answers required to pass)
+      const neededCorrectAnswers = Math.ceil((passingPercentage / 100) * totalQuestions) - correctAnswersCount;
   
       // Save the result to the TestResult collection in MongoDB
       const testResult = new TestResult({
@@ -220,6 +237,7 @@ exports.getTestResults = async (req, res) => {
           answer: question.userAnswer,
         })),
         correctAnswers: correctAnswersCount,
+        wrongAnswers: wrongAnswersCount,
         totalQuestions,
         score,
         passed,
@@ -228,13 +246,15 @@ exports.getTestResults = async (req, res) => {
       // Save the test result
       await testResult.save();
   
-      // Respond with the result
+      // Respond with the result, including the correct answers, wrong answers, and the needed score
       return res.status(200).json({
         message: passed ? 'You passed the test!' : 'You failed the test.',
         score: `${score}%`,
         correctAnswers: correctAnswersCount,
+        wrongAnswers: wrongAnswersCount,
         totalQuestions,
         passed,
+        neededCorrectAnswers, // How many more correct answers are needed to pass
         answeredQuestions: userProgress.answeredQuestions,
       });
     } catch (error) {
@@ -242,7 +262,7 @@ exports.getTestResults = async (req, res) => {
       res.status(500).json({ message: 'Failed to retrieve the result and save the test result.' });
     }
   };
-
+  
   exports.submitAnswers = async (req, res) => {
     const { userId, testId, answer } = req.body; // Single question-answer pair
   
@@ -252,17 +272,19 @@ exports.getTestResults = async (req, res) => {
     }
   
     try {
-      const test = await Test.findById(testId).populate('questions');
+      // Find the test by its ID and populate the questions
+      const test = await Test.findById(testId).populate('questionIds'); // Corrected populate with questionIds
       if (!test) {
         return res.status(404).json({ message: 'Test not found.' });
       }
   
-      const totalQuestions = test.questions.length;
+      const totalQuestions = test.questionIds.length; // Total questions in the test
   
       // Find or create the user's progress record
       let userProgress = await UserTestProgress.findOne({ testId, userId });
   
       if (!userProgress) {
+        // If no progress exists, create a new record
         userProgress = new UserTestProgress({
           userId,
           testId,
@@ -271,13 +293,14 @@ exports.getTestResults = async (req, res) => {
           progress: 0, // Start at the first question
           status: 'Incomplete', // Initially incomplete
         });
+        await userProgress.save(); // Save the new progress record
       }
   
-      // Determine the current question index
+      // Determine the current question index based on progress
       const currentQuestionIndex = userProgress.progress;
   
       // Ensure the answer corresponds to the current question
-      const currentQuestion = test.questions[currentQuestionIndex];
+      const currentQuestion = test.questionIds[currentQuestionIndex];
       if (!currentQuestion || currentQuestion._id.toString() !== answer.questionId) {
         return res.status(400).json({
           message: `You must answer question ${currentQuestionIndex + 1} before proceeding.`,
@@ -327,15 +350,16 @@ exports.getTestResults = async (req, res) => {
         progress: userProgress.progress,
         totalQuestions,
         isCorrect,
-        status: userProgress.status, // Return the status
+        status: userProgress.status, // Return the status of the test
         isTestComplete,
-        answeredQuestions: userProgress.answeredQuestions,
+        answeredQuestions: userProgress.answeredQuestions, // List of all answered questions
       });
     } catch (error) {
       console.error(error);
       res.status(500).json({ message: 'Failed to submit the answer and update progress.' });
     }
   };
+  
 
   // API to get all user progress data
 exports.getAllUserProgress = async (req, res) => {

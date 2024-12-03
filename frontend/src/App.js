@@ -4,7 +4,6 @@ import 'primereact/resources/themes/saga-blue/theme.css'; // Choose a theme you 
 import 'primereact/resources/primereact.min.css';
 import 'primeicons/primeicons.css';
 import './index.css'; // Your global styles
-
 import { PrimeReactProvider } from 'primereact/api';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 
@@ -29,10 +28,12 @@ import Result from './Component/Result/Result';
 function App() {
   return (
     <Router>
-      <CustomCursor />
-      <Dashboard/>
+      {/* <CustomCursor /> */}
+      {/* <Dashboard/> */}
       
-      {/* <Routes>
+      <Routes>
+      {/* <Dashboard/> */}
+{/* <Route path='/dashboard' element={<Dashboard/>}/> */}
         <Route path="/" element={<Home />}/>
         <Route path="/home/help" element={<Help/>} />
         <Route path='/home/help/premium' element={<AccordianSection/>}/>
@@ -46,7 +47,7 @@ function App() {
         <Route path='/home/who-can-g1-driver-drive-with/' element={<Testpage/>}/>
         <Route path='/home/text-series' element={<ExamPage/>}/>
         <Route path="/result" element={<Result/>}/>
-      </Routes> */}
+      </Routes>
     </Router>
   );
 }

@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { type } = require('os');
 
 // Test Title Schema
 const testTitleSchema = new mongoose.Schema({
@@ -15,14 +16,18 @@ const testTitleSchema = new mongoose.Schema({
     ref: 'TestLevel', // Reference to TestLevel
     required: true,
   },
+  image: { 
+    type: String, 
+    required: false 
+  }, // Image URL (optional)
+
 });
 
 // Test Level Schema
 const testLevelSchema = new mongoose.Schema({
   testLevelName: {
     type: String,
-    required: true,
-    unique: true, // Ensure test levels are unique
+    required: true
   },
   testName: {
     type: mongoose.Schema.Types.ObjectId,

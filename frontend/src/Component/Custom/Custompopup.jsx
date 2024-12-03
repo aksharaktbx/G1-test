@@ -9,11 +9,10 @@ const Custompopup = ({ onClose, handleSubmit, children, title }) => {
     onClose(); // Close the popup after submitting
   };
 
-
   return (
-    <div className="fixed inset-0 bg-gray-500 bg-opacity-75 z-10 flex justify-center items-start pt-16">
+    <div className="fixed inset-0 bg-gray-500 bg-opacity-75 z-10 flex justify-center items-center overflow-auto"> {/* Added overflow-auto for the outer container */}
       {/* Apply the animate-slide-down class to trigger the animation */}
-      <div className="bg-white rounded-lg shadow-lg w-2/3 max-w-2xl p-4 animate-slide-down">
+      <div className="bg-white rounded-lg shadow-lg w-2/3 max-w-2xl p-4 animate-slide-down max-h-[80vh] overflow-y-auto"> {/* Added max-h-[80vh] to make the popup scrollable */}
         {/* Popup Header */}
         <div className="flex justify-between items-center border-b pb-2">
           <h2 className="text-xl font-semibold">{title || 'Custom Popup'}</h2>
@@ -22,8 +21,8 @@ const Custompopup = ({ onClose, handleSubmit, children, title }) => {
           </button>
         </div>
 
-        {/* Popup Body */}
-        <div className="py-6">
+        {/* Popup Body with Scrollable Content */}
+        <div className="py-6 max-h-[60vh] overflow-y-auto"> {/* Added max-height and overflow for scrolling */}
           <div>{children}</div> {/* Render any custom content passed as children */}
         </div>
 
