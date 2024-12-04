@@ -3,21 +3,26 @@ const Test= require('../modal/createtestmodal');
 const TestResult=require('../modal/testresultmodal')
 
 
-// Controller method to create a test
 exports.createTest = async (req, res) => {
   const { testNameId, testLevelId, testTitleId, testDescription } = req.body;
 
+  // Input validation
+  if (!testNameId || !testLevelId || !testTitleId || !testDescription) {
+    return res.status(400).json({ message: 'All fields are required.' });
+  }
   try {
     const test = await Test.createOrUpdateTest(testNameId, testLevelId, testTitleId, testDescription);
 
     res.status(200).json({
-      message: test ? 'Test updated successfully' : 'Test created successfully',
-      test: test,
+      message: 'Test created or updated successfully',
+      test,
     });
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error: error.message });
+    console.error('Error in createTest:', error.message);
+    res.status(500).json({ message: 'Server error. Unable to create/update test.' });
   }
 };
+
 exports.getTestById = async (req, res) => {
   const { id } = req.params; // Get testId from request params
 
@@ -43,8 +48,6 @@ exports.getTestById = async (req, res) => {
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
-
-
 // Controller to fetch tests by testNameId
 exports.getTestsByTestNameId = async (req, res) => {
   const { testNameId } = req.params; // Get testNameId from request params
@@ -67,8 +70,6 @@ exports.getTestsByTestNameId = async (req, res) => {
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
-
-
 exports.getAllTests = async (req, res) => {
   try {
     // Call the method to get all tests from the database and populate the necessary fields

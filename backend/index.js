@@ -3,6 +3,7 @@ const connectDB = require('./config/db');
 const path = require('path');  // Import path module to handle file paths
 require('dotenv').config(); // Load environment variables
 const questionroutes = require('./Routes/questionsroutes');
+const subscriptionroutes=require('./Routes/subscriptioplanroutes')
 const cors = require('cors');  // Import CORS
 
 const app = express();
@@ -26,6 +27,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 // Middleware
 app.use(express.json());
 app.use(questionroutes);
+app.use('/api',subscriptionroutes)
 
 // Routes
 // Root Route

@@ -84,6 +84,7 @@ const AddTest = () => {
         testTitleId: selectedTestTitle,
         testDescription: testDescription
       });
+      console.log(response.data)
       alert('Test created successfully!');
       setShowModal(false);
     } catch (err) {

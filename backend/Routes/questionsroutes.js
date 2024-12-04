@@ -40,7 +40,7 @@ router.get('/testlevels/testname/:testNameId', testcontroller.getTestLevelsByTes
 router.get('/testtitles/testlevel/:testLevelId', testcontroller.getTestTitlesByTestLevel);
 // test
 router.post('/createtest', createtestmodulecontroller.createTest);
-router.get('/gettests', createtestmodulecontroller.getAllTests);
+router.get('/gettestdata', createtestmodulecontroller.getAllTests);
 router.get('/gettests/:testNameId', createtestmodulecontroller.getTestsByTestNameId);
 
 

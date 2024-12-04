@@ -15,6 +15,9 @@ import Managetest from './Managetest';
 import Showtest from './Showtest';
 import UpdateQuestion from './UpdateQuestion';
 import UserProgress from './UserProgress';
+import Result from '../Result/Result';
+import Resultpage from './Resultpage';
+import Managesubcription from './Managesubcription';
 
 const Dashboard = () => {
     return (
@@ -24,7 +27,7 @@ const Dashboard = () => {
                 <h2 className="text-xl font-bold text-center">Dashboard</h2>
                 <ul className="mt-5">
                     <li className="mt-4">
-                        <Link to="/dashboard/overview" className="text-white hover:bg-white hover:text-indigo-600 block px-3 py-2 rounded">Overview</Link>
+                        <Link to="/dashboard/manage/subscription" className="text-white hover:bg-white hover:text-indigo-600 block px-3 py-2 rounded">Manage Subscription</Link>
                     </li>
                     <li className="mt-4">
                         <Link to="/dashboard/manage-test" className="text-white hover:bg-white hover:text-indigo-600 block px-3 py-2 rounded">Test Management</Link>
@@ -53,7 +56,7 @@ const Dashboard = () => {
             {/* Right Side Content (Scrollable and Full Screen) */}
             <div style={{backgroundColor:'#F0F2F5'}} className="w-[83%] h-full ml-[17%] min-h-screen">
                 {/* Header section (Sticky) */}
-                <div className="sticky top-0 right-0 z-10 p-4 mb-4 border-b">
+                <div className="sticky bg-white top-0 right-0 z-10 p-4 mb-4 border-b">
                     <div className="flex justify-between items-center">
                         <h1 className="text-xl font-semibold">My Application</h1>
                         <div className="relative">
@@ -75,8 +78,13 @@ const Dashboard = () => {
                         <Route path='/dashboard/show-test' element={<Showtest />} />
                     
                         <Route path='/dashboard/userProgress' element={<UserProgress/>} />
-
+                        <Route path='/dashboard/result' element={<Resultpage/>} />
                         <Route path='/dashboard/User-data' element={<UserData />} />
+
+                        {/* subscription */}
+
+                        <Route path=' /dashboard/manage/subscription' element={<Managesubcription/>} />
+
                         {/* Add more routes as needed */}
                     </Routes>
                 </div>

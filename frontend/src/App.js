@@ -29,12 +29,12 @@ function App() {
   return (
     <Router>
       {/* <CustomCursor /> */}
-      {/* <Dashboard/> */}
+      <Dashboard/>
       
       <Routes>
       {/* <Dashboard/> */}
 {/* <Route path='/dashboard' element={<Dashboard/>}/> */}
-        <Route path="/" element={<Home />}/>
+        {/* <Route path="/" element={<Home />}/>
         <Route path="/home/help" element={<Help/>} />
         <Route path='/home/help/premium' element={<AccordianSection/>}/>
         <Route path='/home/FQ&A' element={<Faq/>}/>
@@ -46,7 +46,7 @@ function App() {
         <Route path='/home/gi-premium-test-series' element={<Premiumtest/>}/>
         <Route path='/home/who-can-g1-driver-drive-with/' element={<Testpage/>}/>
         <Route path='/home/text-series' element={<ExamPage/>}/>
-        <Route path="/result" element={<Result/>}/>
+        <Route path="/result" element={<Result/>}/> */}
       </Routes>
     </Router>
   );

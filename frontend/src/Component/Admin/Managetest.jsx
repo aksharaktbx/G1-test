@@ -64,7 +64,7 @@ const Managetest = () => {
   useEffect(() => {
     const fetchTests = async () => {
       try {
-        const response = await fetch('http://localhost:5000/gettests');
+        const response = await fetch('http://localhost:5000/gettestdata');
         if (!response.ok) throw new Error('Failed to fetch tests');
         const data = await response.json();
 
