@@ -11,11 +11,12 @@ const Result = () => {
   const [error, setError] = useState(null);
 
   
+  console.log(userId ,testId)
 
   useEffect(() => {
     const fetchResult = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/get-result/dd438071-85d2-4e3f-8392-b9cd1da9e50a/674e973114b50705e577ffe9');
+        const response = await axios.get(`http://localhost:5000/get-result/${userId}/${testId}`);
        console.log(response.data)
        
         setResult(response.data);

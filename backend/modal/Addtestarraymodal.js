@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-const { type } = require('os');
 
 // Test Title Schema
 const testTitleSchema = new mongoose.Schema({

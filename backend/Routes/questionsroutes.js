@@ -57,6 +57,7 @@ router.delete('/test-name/:id', testcontroller.deleteTestName); // Delete a Test
 // router.get('/gettestarray/:id',addtestarraycontroller.getTestTypeById)
 
 router.get('/userprogress', createtestmodulecontroller.getAllUserProgress);
+router.get('/getUserTestProgress',createtestmodulecontroller.getUserTestProgress)
 
 
 

@@ -4,6 +4,7 @@ import SmallCustomtable from '../Custom/SmallCustomtable';
 import Custompopup from '../Custom/Custompopup';
 import axios from 'axios';
 import { FaTrash } from 'react-icons/fa';
+import Button from '@mui/material/Button';
 
 
 
@@ -113,12 +114,12 @@ const Managetest = () => {
               <span> Mistakes Allowed:{test.mistakesAllowed}</span>
 
               </div>
-              <button 
+              {/* <button 
     type="button" 
     class="text-green-700 text-xs hover:text-white border border-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 dark:border-green-500 dark:text-green-500 dark:hover:text-white dark:hover:bg-green-600 dark:focus:ring-green-800 mt-auto"
   >
     Add More Questions
-  </button>
+  </button> */}
   </div>
               
               </>
@@ -384,41 +385,44 @@ const handleAddTestTitle = async (e) => {
                 <div className="flex justify-between items-center mb-4">
                     <h1 className="text-2xl font-semibold pb-2  ">Manage Test</h1>
                     <div className="flex gap-2">
-  {/* Add Test Name Button */}
-  <button
-    type="button"
-    className="px-3 py-2 text-xs font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-    onClick={togglePopup}
-  >
-    Add Test Name
-  </button>
+      {/* Add Test Name Button */}
+      <Button
+        variant="contained"
+        color="primary"
+        onClick={togglePopup}
+      >
+        Add Test Name
+      </Button>
 
-  {/* Add Test Level Button */}
-  <button
-    type="button"
-    className="px-3 py-2 text-xs font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-    onClick={togglePopup4}
-  >
-    Add Test Level
-  </button>
+      {/* Add Test Level Button */}
+      <Button
+        variant="contained"
+        color="primary"
+        size="small" // Adjust the size as per requirement
+        onClick={togglePopup4}
+      >
+        Add Test Level
+      </Button>
 
-  {/* Add Test Title Button */}
-  <button
-    type="button"
-    className="px-3 py-2 text-xs font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-    onClick={toggleTitlePopup}
-  >
-    Add Test Title
-  </button>
+      {/* Add Test Title Button */}
+      <Button
+        variant="contained"
+        color="primary"
+        size="small"
+        onClick={toggleTitlePopup}
+      >
+        Add Test Title
+      </Button>
 
-  {/* Create Test Button */}
-  <button
-    type="button"
-    className="px-3 py-2 text-xs font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-  >
-    Create Test
-  </button>
-</div>
+      {/* Create Test Button */}
+      <Button
+        variant="contained"
+        color="primary"
+        size="small"
+      >
+        Create Test
+      </Button>
+    </div>
 
                 </div>
                 
@@ -502,7 +506,7 @@ const handleAddTestTitle = async (e) => {
                         <option value="">Select Test Level</option>
                         {testleveldata.map((level) => (
                             <option key={level.id} value={level._id}>
-                                {level.levelName}
+                                {level.levelName} ( {level.testName} )
                             </option>
                         ))}
                     </select>

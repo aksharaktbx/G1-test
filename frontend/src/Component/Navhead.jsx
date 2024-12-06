@@ -20,7 +20,7 @@ function Navhead() {
 
   return (
     <div>
-      <header style={{backgroundColor:'#F2F3F7'}} className="">
+      <header style={{backgroundColor:'#F2F3F7'}} className=" border-b">
       <nav className="mx-auto flex max-w-7xl items-center justify-between p-6 lg:px-8" aria-label="Global">
   <div className="flex lg:flex-1">
     <a href="#" className="-m-1.5 p-1.5">
@@ -29,7 +29,7 @@ function Navhead() {
     </a>
   </div>
 
-  <div className="hidden lg:flex lg:gap-x-12 justify-center flex-1">
+  <div className=" lg:flex lg:gap-x-12 justify-center flex-1">
     <div className="relative">
       <button
         type="button"

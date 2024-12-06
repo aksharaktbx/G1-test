@@ -11,6 +11,7 @@ function FreeTest( ) {
   const [loading, setLoading] = useState(true); // Loading state
   const [error, setError] = useState(null); // Error state
   const [testdata,settestdata]=useState([])
+  const [questions,setquestions]=useState([])
   const [uniqueCode, setUniqueCode] = useState('');
   const navigate=useNavigate()
   useEffect(() => {
@@ -34,6 +35,9 @@ function FreeTest( ) {
         const response = await axios.get(`http://localhost:5000/gettest/${id}`);
         console.log(response.data.test); // Debugging log
         settestdata(response.data.test)
+      
+        setquestions(response.data.test.questionIds)
+
       } catch (err) {
         setError('Failed to fetch data'); // Set error message
         console.error(err); // Log error for debugging
@@ -73,12 +77,12 @@ function FreeTest( ) {
  
 
   return (
+
     <>
-            <span className="text-lg font-mono">{uniqueCode}</span>
 
       <Navhead />
-      <div className="flex justify-center py-8 px-4">
-        <div className="bg-white rounded-lg p-10 flex flex-col md:flex-row max-w-6xl w-full">
+      <div className="flex justify-center py-8 px-4 ">
+        <div className=" bg-dark rounded-lg p-10 flex flex-col md:flex-row max-w-6xl w-full border">
           <div className="mr-0 md:mr-8 mb-8 md:mb-0 flex-1">
             <h1 className="text-3xl font-bold mb-4">Free Ontario G1 Practice Test 2024</h1>
             <ul className="list-disc pl-5 space-y-2 text-lg">
@@ -231,39 +235,20 @@ function FreeTest( ) {
           </div>
         </div>
       </div>
-      <div className="max-w-6xl mx-auto p-10 mb-10 bg-white rounded-lg shadow-md  mt-10">
-                <h1 className="text-xl font-semibold mb-4">List of questions (classic view)</h1>
-                <ol className="list-decimal list-inside space-y-2">
-                    <li>What does this road sign mean?</li>
-                    <li>What does this road sign mean?</li>
-                    <li>What does this road sign mean?</li>
-                    <li>What does this construction sign mean?</li>
-                    <li>What does this road sign mean?</li>
-                    <li>What does this road sign mean?</li>
-                    <li>What does this road sign mean?</li>
-                    <li>What does this road sign mean?</li>
-                    <li>What does this road sign mean?</li>
-                    <li>This symbol indicates</li>
-                    <li>What does this road sign mean?</li>
-                    <li>What does this road sign mean?</li>
-                    <li>What does this sign mean?</li>
-                    <li>What does this road sign mean?</li>
-                    <li>What does this road sign mean?</li>
-                    <li>What does this road sign mean?</li>
-                    <li>What does this road sign mean?</li>
-                    <li>What does this road sign mean?</li>
-                    <li>What does this road sign mean?</li>
-                    <li>What does this road sign mean?</li>
-                    <li>While driving, you receive a call on your hand-held cell phone. There are no passengers who can take the call for you. What should you do?</li>
-                    <li>When you are in a roundabout,</li>
-                </ol>
-                <div className="flex justify-center mt-10">
-  <button className='border rounded-full border-indigo-600 w-40 p-2 flex justify-center items-center hover:bg-indigo-600 hover:text-white transition'>
-    Print
-  </button>
+      <div className="max-w-6xl mx-auto p-10 mb-10 bg-white rounded-lg shadow-md mt-10">
+  <h1 className="text-xl font-semibold mb-4">List of Questions (Classic View)</h1>
+  <ol className="list-decimal list-inside space-y-2">
+    {questions.map((question, index) => (
+      <li key={index}>{question.questionText}</li>
+    ))}
+  </ol>
+  <div className="flex justify-center mt-10">
+    <button className="border rounded-full border-indigo-600 w-40 p-2 flex justify-center items-center hover:bg-indigo-600 hover:text-white transition">
+      Print
+    </button>
+  </div>
 </div>
 
-            </div>
             <Footer/>
     </>
   );

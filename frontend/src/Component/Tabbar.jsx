@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios'; // Import axios for making API calls
+import axios from 'axios';
 import CarTest from './Tabs/CarTest'; // Adjust the import path as necessary
 
 function Tabbar() {
@@ -12,41 +12,44 @@ function Tabbar() {
   useEffect(() => {
     const fetchTestNames = async () => {
       try {
-        // Make the GET request to fetch the test names
+        setLoading(true); // Set loading to true while fetching
         const testNamesResponse = await axios.get('http://localhost:5000/test-name');
-        
-        // Assuming the response has a 'data' property with a 'data' field containing the test names and IDs
         const fetchedTestNames = testNamesResponse.data.data.map((test) => ({
           testName: test.testName,
-          testId: test._id, // Assuming each test has an 'id' field
+          testId: test._id, // Assuming each test has an '_id' field
         }));
-        console.log(fetchedTestNames);
-        
-        // Update the state with the fetched test names
+
         setTestNames(fetchedTestNames);
+
+        // Automatically select the first test in the list
+        if (fetchedTestNames.length > 0) {
+          setSelectedTestId(fetchedTestNames[0].testId);
+        }
       } catch (error) {
         console.error('Error fetching test names:', error);
         setError('Failed to fetch test names');
+      } finally {
+        setLoading(false); // Set loading to false once done
       }
     };
 
-    // Call the fetchTestNames function
-    fetchTestNames();
+    fetchTestNames(); // Call the fetch function
   }, []);
 
-  // Handle button click: fetch data based on selected test ID
-
-  // Handle the click event to set the selected test ID
+  // Handle button click: set the selected test ID manually
   const handleTestClick = (test) => {
-    setSelectedTestId(test.testId); // Update the selected test ID
+    setSelectedTestId(test.testId);
   };
 
   return (
     <>
-      <div className="max-w-4xl mx-auto p-4">
-       
-        <div className="flex justify-center space-x-4 mb-8">
-          {/* Dynamically render buttons for each test */}
+      <div className="max-w-5xl rounded-full mx-auto p-4  ">
+        {/* Loading and Error Handling */}
+        {loading && <p>Loading...</p>}
+        {error && <p>{error}</p>}
+
+        {/* Buttons for Tests */}
+        <div className="flex justify-center space-x-4 mb-8 ">
           {testNames.length > 0 ? (
             testNames.map((test, index) => (
               <button
@@ -56,17 +59,17 @@ function Tabbar() {
                     ? 'bg-indigo-500 text-white'
                     : 'bg-white text-gray-500 hover:bg-gray-300'
                 }`}
-                onClick={() => handleTestClick(test)} // Update selectedTestId and fetch data on click
+                onClick={() => handleTestClick(test)}
               >
                 {test.testName}
               </button>
             ))
           ) : (
-            <p>No test names available</p>
+            !loading && <p>No test names available</p>
           )}
         </div>
 
-        {/* Conditionally render CarTest only when a test is selected */}
+        {/* Render CarTest with selected test ID */}
         {selectedTestId && <CarTest testId={selectedTestId} />}
       </div>
     </>

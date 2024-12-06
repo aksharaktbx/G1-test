@@ -23,14 +23,18 @@ import Testpage from './Component/NormalTest/Testpage';
 import ExamPage from './Component/ExamPage/ExamPage';
 import Dashboard from './Component/Admin/Dashboard';
 import Result from './Component/Result/Result';
+import Navhead from './Component/Navhead';
+import Navbar from './Component/Navbar';
+
 
 
 function App() {
   return (
     <Router>
       {/* <CustomCursor /> */}
-      <Dashboard/>
-      
+     <Dashboard/>
+       
+
       <Routes>
       {/* <Dashboard/> */}
 {/* <Route path='/dashboard' element={<Dashboard/>}/> */}

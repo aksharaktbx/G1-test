@@ -1,49 +1,96 @@
-// controllers/subscriptionPlanController.js
-const SubscriptionPlan = require('../modal/Subscriptionplanmodal'); // Adjust the path as per your structure
+const Plan = require('../modal/Subscriptionplanmodal'); // Adjust path as needed
 
-// Controller function to create a new subscription plan
-exports.createSubscriptionPlan = async (req, res) => {
+// Controller to create a new plan
+exports.createPlan = async (req, res) => {
   try {
-    // Extract data from the request body
-    const {
-      planType,
+    // Destructure fields from the request body
+    const { name, duration, price, currency, features, accessLevel, status } = req.body;
+
+    // Create a new plan instance
+    const newPlan = new Plan({
+      name,
+      duration,
       price,
       currency,
-      duration,
-      startDate,
-      endDate,
-      maxUsers,
-      status,
-    } = req.body;
-
-    // Validate required fields
-    if (!planType || !price || !currency || !duration || !maxUsers) {
-      return res.status(400).json({ message: 'Missing required fields' });
-    }
-
-    // Create a new subscription plan object
-    const newPlan = new SubscriptionPlan({
-      planType,
-      price,
-      currency,
-      duration,
-      startDate,
-      endDate,
-      maxUsers,
-      status: status || 'active', // Default to 'active' if not provided
+      features,
+      accessLevel,
+      status
     });
 
-    // Save the new subscription plan to the database
+    // Save the new plan to the database
     await newPlan.save();
 
     // Return success response
-    res.status(201).json({
-      message: 'Subscription plan created successfully',
-      plan: newPlan,
+    return res.status(201).json({
+      message: 'Plan created successfully!',
+      plan: newPlan
     });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: 'Server error' });
+  } catch (error) {
+    // Handle errors and return a failure response
+    console.error(error);
+    return res.status(500).json({
+      message: 'Failed to create plan',
+      error: error.message
+    });
+  }
+};
+// Controller to update an existing plan
+exports.updatePlan = async (req, res) => {
+  try {
+    const { planId } = req.params;  // Extract the planId from the URL parameters
+    const { name, duration, price, currency, features, accessLevel, status } = req.body;  // Fields to update
+
+    // Find the plan and update its fields
+    const updatedPlan = await Plan.findByIdAndUpdate(
+      planId,
+      {
+        name,
+        duration,
+        price,
+        currency,
+        features,
+        accessLevel,
+        status
+      },
+      { new: true }  // This option returns the updated plan after modification
+    );
+
+    if (!updatedPlan) {
+      return res.status(404).json({ message: 'Plan not found' });
+    }
+
+    // Return success response with the updated plan
+    return res.status(200).json({
+      message: 'Plan updated successfully!',
+      plan: updatedPlan
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      message: 'Failed to update plan',
+      error: error.message
+    });
   }
 };
 
+
+// Controller to fetch all plans
+exports.getPlans = async (req, res) => {
+  try {
+    // Fetch all plans from the database
+    const plans = await Plan.find();
+
+    // Return success response with plans
+    return res.status(200).json({
+      message: 'Plans fetched successfully!',
+      plans
+    });
+  } catch (error) {
+    // Handle errors and return a failure response
+    console.error(error);
+    return res.status(500).json({
+      message: 'Failed to fetch plans',
+      error: error.message
+    });
+  }
+};

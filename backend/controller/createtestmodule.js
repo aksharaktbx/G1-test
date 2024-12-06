@@ -389,4 +389,42 @@ exports.getAllUserProgress = async (req, res) => {
     res.status(500).json({ message: 'Failed to fetch user progress data.' });
   }
 };
+// API to get user test progress by userId and testId
+exports.getUserTestProgress = async (req, res) => {
+  const { userId, testId } = req.query; // Extract userId and testId from the query params
+
+  // Validate input
+  if (!userId || !testId) {
+    return res.status(400).json({ message: 'userId and testId are required.' });
+  }
+
+  try {
+    // Find the user's progress record for the specific test
+    const userProgress = await UserTestProgress.findOne({ userId, testId });
+
+    // If no progress record is found
+    if (!userProgress) {
+      return res.status(404).json({ message: 'No progress found for the given user and test.' });
+    }
+
+    // Determine the status (Complete / Incomplete)
+    const status = userProgress.progress === userProgress.totalNumberofQuestions 
+      ? 'Complete' 
+      : 'Incomplete';
+
+    // Return the progress record along with the status
+    res.status(200).json({
+      userId: userProgress.userId,
+      testId: userProgress.testId,
+      answeredQuestions: userProgress.answeredQuestions,
+      progress: userProgress.progress,
+      totalQuestions: userProgress.totalNumberofQuestions,
+      status, // Add status field
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Failed to fetch user test progress.' });
+  }
+};
+
   
